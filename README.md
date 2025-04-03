@@ -10,11 +10,13 @@ A Python-based AFK bot for Minecraft that helps prevent being kicked from server
 - Teleportation commands
 - Configurable settings
 - Beautiful terminal interface with:
-  - Animated header
+  - Animated header with typing effect
   - Real-time status display with progress bars
   - Precise percentage tracking (2 decimal places)
   - Loading animations
   - Countdown timer
+  - Clear stop instructions
+  - Graceful shutdown sequence
 
 ## Installation
 
@@ -31,6 +33,8 @@ Edit the `config.py` file to customize:
 - AFK detection timing
 - Teleportation commands
 - Mouse movement frequency
+- Right-click interval (default: 2000)
+- Teleport interval (default: 2355)
 
 ## Usage
 
@@ -40,16 +44,20 @@ Edit the `config.py` file to customize:
    python bot.py
    ```
 3. The bot will show:
-   - An animated header
+   - An animated header with typing effect
    - Loading animation
-   - Countdown timer
+   - 5-second countdown
+   - Clear stop instructions
    - Real-time status display with:
      - Food counter (0-2000)
      - TP counter (0-2355)
-     - Progress bars and percentages
+     - Progress bars and precise percentages
+   - Status updates every 0.5 seconds
+
 4. To stop the bot:
    - Move mouse to top-left corner (failsafe)
    - Press Ctrl+C
+   - The bot will show a graceful shutdown sequence with countdown
 
 ## Safety Features
 
@@ -57,6 +65,23 @@ Edit the `config.py` file to customize:
 - Configurable movement patterns
 - Error handling for common issues
 - Smooth animations and status updates
+- Graceful shutdown with 3-second countdown
+- Console window for error visibility
+- Proper cleanup on exit
+
+## Building the Executable
+
+1. Install PyInstaller:
+   ```bash
+   pip install pyinstaller
+   ```
+
+2. Run the build script:
+   ```bash
+   python build.py
+   ```
+
+3. The executable will be created in the `dist` folder
 
 ## Disclaimer
 
