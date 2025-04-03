@@ -5,18 +5,30 @@ import keyboard
 import sys
 from config import *
 from terminal_utils import TerminalUtils
+from colorama import Fore, Style
 
 class MinecraftAFKBot:
     def __init__(self):
+        """Initialize the AFK bot."""
+        # Initialize pyautogui with custom settings
+        pag.FAILSAFE = False  # Disable the built-in failsafe
+        pag.PAUSE = 0.1  # Add a small delay between actions
+        
+        # Initialize coordinates and position
         self.coordinates = self._generate_coordinates()
         self.current_position = pag.position()
-        self.afk_count = 0
         self.coord_index = 0
+        
+        # Initialize counters
         self.mouse_count = 0
         self.tp_count = 0
+        self.afk_count = 0
         self.running = True
         self.terminal = TerminalUtils()
         self.failsafe_triggered = False
+        self.header_shown = False
+        self.last_status_update = 0
+        self.status_update_interval = 0.5  # Update status every 0.5 seconds
 
     def _generate_coordinates(self):
         """Generate random coordinates within safe screen boundaries."""
@@ -71,74 +83,124 @@ class MinecraftAFKBot:
         self.tp_count = 0
         time.sleep(PAUSE_BETWEEN_ACTIONS)
 
-    def run(self):
-        """Main bot loop."""
-        # Enable failsafe (move mouse to top-left corner to stop)
-        pag.FAILSAFE = True
-        
+    def _check_failsafe(self):
+        """Check if failsafe is triggered (mouse in top-left corner)."""
         try:
-            # Show startup sequence
+            x, y = pag.position()
+            return x == 0 and y == 0
+        except:
+            return False
+
+    def run(self):
+        """Run the AFK bot."""
+        try:
+            # Print header only once
+            if not self.header_shown:
+                self.terminal.clear_screen()
+                self.terminal._print_animated_header()
+                self.header_shown = True
+            
+            # Show loading animation
+            self.terminal._loading_animation()
+            
+            # Countdown before starting
             self.terminal.countdown(5)
             
-            # Set initial AFK count to 5
-            self.afk_count = 5
+            # Clear screen and show header again with instructions
+            self.terminal.clear_screen()
+            self.terminal._print_animated_header()
+            print(f"\n{Fore.YELLOW}To stop the bot:{Style.RESET_ALL}")
+            print(f"- Move mouse to top-left corner")
+            print(f"- Press {Fore.RED}Ctrl+C{Style.RESET_ALL}")
+            print()  # Add extra line before status
             
-            # Display initial status with 0 counters but AFK at 5
-            self.terminal.print_status(
-                0,              # Start at 0/2000
-                0,              # Start at 0/2355
-                self.afk_count, # Start at 5
-                RIGHT_CLICK_INTERVAL,
-                TELEPORT_INTERVAL,
-                AFK_THRESHOLD
-            )
-            
-            # Perform first actions immediately after showing counters
+            # Perform first actions before showing initial status
             self._perform_mouse_movement()
             self._perform_key_press()
             
-            # Update display to show the increment to 1
-            self.terminal.print_status(
-                self.mouse_count,  # Now at 1/2000
-                self.tp_count,     # Now at 1/2355
-                self.afk_count,
-                RIGHT_CLICK_INTERVAL,
-                TELEPORT_INTERVAL,
-                AFK_THRESHOLD
-            )
+            # Show initial status
+            self._update_status()
             
+            # Main loop
             while self.running:
-                if self._check_afk():
-                    self._perform_mouse_movement()
-                    self._perform_key_press()
+                try:
+                    # Check for failsafe
+                    if self._check_failsafe():
+                        self.running = False
+                        self._graceful_shutdown()
+                        break
                     
-                    if self.mouse_count >= RIGHT_CLICK_INTERVAL:
-                        self._perform_right_click()
+                    # Check if player is AFK
+                    if self._check_afk():
+                        # Perform random actions
+                        self._perform_mouse_movement()
+                        self._perform_key_press()
+                        
+                        # Check for right-click interval
+                        if self.mouse_count % RIGHT_CLICK_INTERVAL == 0:
+                            self._perform_right_click()
+                        
+                        # Check for teleport interval
+                        if self.tp_count % TELEPORT_INTERVAL == 0:
+                            self._perform_teleport()
                     
-                    if self.tp_count >= TELEPORT_INTERVAL:
-                        self._perform_teleport()
+                    # Update status display
+                    self._update_status()
                     
-                    # Update status display with required parameters
-                    self.terminal.print_status(
-                        self.mouse_count,
-                        self.tp_count,
-                        self.afk_count,
-                        RIGHT_CLICK_INTERVAL,
-                        TELEPORT_INTERVAL,
-                        AFK_THRESHOLD
-                    )
-                
-                time.sleep(CHECK_INTERVAL)
-                
-        except KeyboardInterrupt:
-            self.terminal.print_exit(failsafe=False)
-        except pag.FailSafeException:
-            self.failsafe_triggered = True
-            self.terminal.print_exit(failsafe=True)
+                    # Sleep for a short duration
+                    time.sleep(0.1)
+                    
+                except KeyboardInterrupt:
+                    self.running = False
+                    self._graceful_shutdown()
+                    break
+                    
         except Exception as e:
-            print(f"\nError: {e}")
+            print(f"\n{Fore.RED}Error: {str(e)}{Style.RESET_ALL}")
+            self._graceful_shutdown()
+
+    def _update_status(self):
+        """Update the status display with current counters."""
+        self.terminal.print_status(
+            self.mouse_count,
+            self.tp_count,
+            self.afk_count,
+            RIGHT_CLICK_INTERVAL,
+            TELEPORT_INTERVAL,
+            AFK_THRESHOLD
+        )
+
+    def _graceful_shutdown(self):
+        """Perform a graceful shutdown with countdown."""
+        try:
+            # Clear the status line
+            print("\r" + " " * 100, end="")
+            
+            # Show shutdown messages with delay
+            messages = [
+                f"{Fore.YELLOW}Shutting down bot...{Style.RESET_ALL}",
+                f"{Fore.YELLOW}Please wait...{Style.RESET_ALL}",
+                f"{Fore.YELLOW}Saving final status...{Style.RESET_ALL}",
+                f"{Fore.YELLOW}Cleaning up...{Style.RESET_ALL}",
+                f"{Fore.GREEN}Goodbye!{Style.RESET_ALL}"
+            ]
+            
+            for msg in messages:
+                print(f"\n{msg}")
+                time.sleep(1)
+            
+            # Final countdown
+            for i in range(3, 0, -1):
+                print(f"\n{Fore.YELLOW}Closing in {i}...{Style.RESET_ALL}")
+                time.sleep(1)
+            
+            # Clear screen one last time
+            self.terminal.clear_screen()
+            
+        except Exception as e:
+            print(f"\n{Fore.RED}Error during shutdown: {str(e)}{Style.RESET_ALL}")
         finally:
-            self.running = False
+            sys.exit(0)
 
 if __name__ == "__main__":
     try:
