@@ -47,7 +47,6 @@ class TerminalUtils:
 
     def countdown(self, seconds=5):
         """Display a simple countdown."""
-        self._print_animated_header()
         print(f"{Fore.YELLOW}To stop the bot:{Style.RESET_ALL}")
         print(f"- Move mouse to top-left corner")
         print(f"- Press {Fore.RED}Ctrl+C{Style.RESET_ALL}")
@@ -59,8 +58,6 @@ class TerminalUtils:
         for i in range(seconds, 0, -1):
             print(f"{Fore.YELLOW}Starting in {i}...{Style.RESET_ALL}")
             time.sleep(1)  # Back to 1 second for better readability
-            if self._check_failsafe():
-                raise KeyboardInterrupt()
         print()  # Add extra line before bot started message
         
         # Show starting animation
@@ -128,4 +125,17 @@ class TerminalUtils:
             print(f"│{' ' * padding}{message}{' ' * (box_width - len(message) - padding)}│")
             print(f"└{'─' * box_width}┘{Style.RESET_ALL}")
         print()  # Add extra line before goodbye
-        print(f"{Fore.CYAN}Goodbye! 👋{Style.RESET_ALL}\n") 
+        print(f"{Fore.CYAN}Goodbye! 👋{Style.RESET_ALL}\n")
+
+    def clear_screen(self):
+        """Clear the terminal screen."""
+        try:
+            # For Windows
+            if os.name == 'nt':
+                os.system('cls')
+            # For Unix/Linux/MacOS
+            else:
+                os.system('clear')
+        except:
+            # Fallback if system call fails
+            print("\n" * 100)  # Print 100 newlines to clear the screen 
