@@ -43,7 +43,7 @@ The bot will start running and will continue until you forcibly stop the script 
 - If idle, it moves the cursor to a random coordinate on the screen.
 - It simulates random key presses (W, A, S, D, Space) to mimic player movement.
 - Every 2000 cycles, it performs a right-click action for 10 seconds.
-- Every 2355 cycles, it types and executes the command "/home cactus".
+- Every 2355 cycles, it types and executes the command "/home cactus" or any other command you want (just change it in the code).
 
 ## Customization
 
