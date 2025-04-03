@@ -1,74 +1,32 @@
 # Minecraft AFK Bot - Complete Documentation
 
 ## Table of Contents
-- [Minecraft AFK Bot - Complete Documentation](#minecraft-afk-bot---complete-documentation)
-  - [Table of Contents](#table-of-contents)
-  - [Project Overview](#project-overview)
-    - [Key Features](#key-features)
-  - [Project Structure](#project-structure)
-    - [File Descriptions](#file-descriptions)
-  - [Installation Guide](#installation-guide)
-    - [Prerequisites](#prerequisites)
-    - [Installation Steps](#installation-steps)
-  - [Configuration Guide](#configuration-guide)
-    - [AFK Detection Settings](#afk-detection-settings)
-    - [Movement Settings](#movement-settings)
-    - [Action Settings](#action-settings)
-    - [Movement Keys](#movement-keys)
-  - [Terminal Interface](#terminal-interface)
-    - [Startup Sequence](#startup-sequence)
-    - [Status Display](#status-display)
-    - [Progress Tracking](#progress-tracking)
-  - [Usage Guide](#usage-guide)
-  - [Technical Details](#technical-details)
-    - [How It Works](#how-it-works)
-    - [Error Handling](#error-handling)
-  - [Safety Features](#safety-features)
-  - [Troubleshooting](#troubleshooting)
-    - [Common Issues](#common-issues)
-    - [Error Messages](#error-messages)
-  - [Disclaimer](#disclaimer)
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Technical Details](#technical-details)
+- [Building the Executable](#building-the-executable)
+- [Troubleshooting](#troubleshooting)
+- [Safety Features](#safety-features)
+- [Disclaimer](#disclaimer)
 
 ## Project Overview
 
 The Minecraft AFK Bot is a Python-based automation tool designed to prevent players from being kicked from Minecraft servers due to inactivity. It achieves this by simulating human-like mouse movements and keyboard inputs.
 
-### Key Features
-- Random mouse movements to prevent AFK detection
+### Features
+- Random mouse movements with configurable patterns
 - Random key presses for movement simulation
-- Automatic right-click actions
-- Teleportation commands
-- Configurable settings
-- Safety features and error handling
+- Automatic right-click actions at specified intervals
+- Teleportation commands at specified intervals
+- Beautiful terminal interface with animations
+- Real-time status display with progress bars
+- Graceful shutdown sequence
+- Failsafe mechanism
 
-## Project Structure
-
-```
-minecraft-afk-bot/
-├── bot.py              # Main bot implementation
-├── config.py           # Configuration settings
-├── requirements.txt    # Python dependencies
-├── README.md          # Quick start guide
-└── DOCUMENTATION.md   # This file
-```
-
-### File Descriptions
-
-1. **bot.py**
-   - Main implementation of the AFK bot
-   - Contains the `MinecraftAFKBot` class
-   - Handles all automation logic and error handling
-
-2. **config.py**
-   - Contains all configurable settings
-   - Easy to modify parameters without touching the main code
-   - Includes timing, movement, and action settings
-
-3. **requirements.txt**
-   - Lists all required Python packages
-   - Specifies exact versions for compatibility
-
-## Installation Guide
+## Installation
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -80,20 +38,10 @@ minecraft-afk-bot/
    ```bash
    pip install -r requirements.txt
    ```
-3. Verify installation by running:
-   ```bash
-   python bot.py --version
-   ```
 
-## Configuration Guide
+## Configuration
 
 The `config.py` file contains all customizable settings:
-
-### AFK Detection Settings
-```python
-AFK_THRESHOLD = 5      # Seconds before considering player AFK
-CHECK_INTERVAL = 2     # Seconds between AFK checks
-```
 
 ### Movement Settings
 ```python
@@ -105,10 +53,10 @@ SCREEN_SAFETY_MARGIN = 100       # Pixels from screen edges
 
 ### Action Settings
 ```python
-RIGHT_CLICK_INTERVAL = 2000      # Mouse movements before right-click
-RIGHT_CLICK_DURATION = 10        # Right-click hold duration
-TELEPORT_INTERVAL = 2355         # Mouse movements before teleport
-TELEPORT_COMMAND = "/home cactus" # Teleport command
+RIGHT_CLICK_INTERVAL = 2000      # Right-click every 2000 actions
+TELEPORT_INTERVAL = 2355         # Teleport every 2355 actions
+AFK_THRESHOLD = 5               # Seconds before considering player AFK
+CHECK_INTERVAL = 2              # Seconds between AFK checks
 ```
 
 ### Movement Keys
@@ -116,124 +64,107 @@ TELEPORT_COMMAND = "/home cactus" # Teleport command
 MOVEMENT_KEYS = ['z', 'q', 's', 'd', 'space']
 ```
 
-## Terminal Interface
+## Usage
 
-### Startup Sequence
-1. **Animated Header**: Displays the bot's name with a typing animation
-2. **Loading Animation**: Shows a spinning animation while initializing
-3. **Countdown Timer**: 5-second countdown before bot activation
-4. **Starting Animation**: Brief animation indicating bot startup
-5. **Status Display**: Real-time counters and progress bars
-
-### Status Display
-The status display shows:
-- **Food Counter**: Tracks right-click actions (0-2000)
-- **TP Counter**: Tracks teleportation commands (0-2355)
-- **Progress Bars**: Visual representation of progress
-- **Percentages**: Precise progress tracking with 2 decimal places
-
-Example status display:
-```
-Food [  45/2000] [███░░░░░░░░░░░]  2.25% | TP [  50/2355] [███░░░░░░░░░░░]  2.12%
-```
-
-### Progress Tracking
-- Progress bars update in real-time
-- Percentages calculated with 2 decimal precision
-- Counters reset automatically at their respective intervals
-- Status updates every 0.5 seconds for smooth display
-
-## Usage Guide
-
-1. **Preparation**
-   - Open Minecraft
-   - Position your character in a safe location
-   - Ensure the game window is active
-
-2. **Starting the Bot**
+### Starting the Bot
+1. Open Minecraft and position your character
+2. Run the bot:
    ```bash
    python bot.py
    ```
-   - A 5-second countdown will begin
-   - Move mouse to top-left corner during countdown to abort
 
-3. **During Operation**
-   - Bot will automatically perform movements
-   - Status updates will be printed to console
-   - Press Ctrl+C to stop the bot
+### Interface Elements
+1. **Animated Header**: Shows the bot name with typing animation
+2. **Loading Animation**: Spinning animation during initialization
+3. **Countdown**: 5-second countdown before bot activation
+4. **Status Display**:
+   - Food counter (0-2000)
+   - TP counter (0-2355)
+   - Progress bars
+   - Precise percentages (2 decimal places)
+5. **Stop Instructions**: Clear display of how to stop the bot
 
-4. **Emergency Stop**
-   - Move mouse to top-left corner of screen
-   - Press Ctrl+C in the terminal
+### Stopping the Bot
+1. Move mouse to top-left corner (failsafe)
+2. Press Ctrl+C
+3. The bot will show a graceful shutdown sequence
 
 ## Technical Details
 
 ### How It Works
-1. **AFK Detection**
-   - Monitors mouse position
-   - Triggers actions after specified inactivity period
-
-2. **Movement System**
-   - Generates random coordinates within safe screen boundaries
-   - Moves mouse smoothly between points
-   - Simulates keyboard inputs for movement
-
-3. **Action System**
-   - Performs right-clicks at specified intervals
-   - Executes teleport commands when needed
-   - Maintains counters for various actions
+1. **AFK Detection**: Checks mouse position every 2 seconds
+2. **Mouse Movement**: Moves to random coordinates when AFK is detected
+3. **Key Presses**: Simulates random movement keys
+4. **Right-Click**: Performs right-click every 2000 actions
+5. **Teleportation**: Executes teleport command every 2355 actions
 
 ### Error Handling
-- Catches and reports exceptions
-- Provides graceful shutdown
-- Includes failsafe mechanism
+- Try-catch blocks around all critical operations
+- Graceful shutdown on errors
+- Console window for error visibility
+- Status update throttling (every 0.5 seconds)
 
-## Safety Features
+## Building the Executable
 
-1. **Failsafe Mechanism**
-   - Move mouse to top-left corner to stop
-   - 5-second startup delay
-   - Configurable safety margins
+### Requirements
+- PyInstaller
+- All project dependencies
 
-2. **Error Prevention**
-   - Screen boundary checks
-   - Input validation
-   - Graceful error handling
+### Build Process
+1. Install PyInstaller:
+   ```bash
+   pip install pyinstaller
+   ```
 
-3. **Customization**
-   - Adjustable timing
-   - Configurable movement patterns
-   - Customizable commands
+2. Run the build script:
+   ```bash
+   python build.py
+   ```
+
+3. The executable will be created in the `dist` folder
+
+### Executable Features
+- Single file distribution
+- Console window for error visibility
+- Custom icon
+- Includes all dependencies
+- Graceful shutdown sequence
 
 ## Troubleshooting
 
 ### Common Issues
-
-1. **Bot Not Starting**
+1. **Bot not starting**:
    - Check Python version
-   - Verify dependencies are installed
-   - Ensure Minecraft window is active
+   - Verify all dependencies are installed
+   - Run as administrator if needed
 
-2. **Mouse Movement Issues**
-   - Adjust `SCREEN_SAFETY_MARGIN`
+2. **Mouse not moving**:
    - Check screen resolution
-   - Verify game window position
+   - Verify Minecraft window is active
+   - Check failsafe is not triggered
 
-3. **Performance Issues**
-   - Increase `CHECK_INTERVAL`
-   - Reduce `NUM_COORDINATES`
-   - Adjust movement durations
+3. **Status not updating**:
+   - Check console window is visible
+   - Verify terminal supports ANSI colors
+   - Check for error messages
 
-### Error Messages
-- "Module not found": Run `pip install -r requirements.txt`
-- "Permission denied": Run as administrator
-- "Screen not found": Check game window visibility
+## Safety Features
+
+1. **Failsafe Mechanism**:
+   - Move mouse to top-left corner to stop
+   - Immediate shutdown when triggered
+   - Visual confirmation of shutdown
+
+2. **Error Recovery**:
+   - Automatic retry on failed actions
+   - Graceful shutdown on critical errors
+   - Status preservation during errors
+
+3. **Resource Management**:
+   - Efficient status updates
+   - Proper cleanup on exit
+   - Memory leak prevention
 
 ## Disclaimer
 
-This bot is provided for educational purposes only. Using AFK bots may violate:
-- Minecraft's Terms of Service
-- Server rules and regulations
-- Fair play principles
-
-Use at your own risk. The developers are not responsible for any consequences resulting from the use of this software. 
+This bot is for educational purposes only. Using AFK bots may violate server rules. Use at your own risk. 
